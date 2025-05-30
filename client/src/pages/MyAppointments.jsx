@@ -36,7 +36,7 @@ const MyAppointments = () => {
   const getUserAppointments = async () => {
     try {
       const { data } = await axios.get(backendUrl + "/api/user/appointments", {
-        headers: { token },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (data.success) {
@@ -54,7 +54,9 @@ const MyAppointments = () => {
       const { data } = await axios.post(
         backendUrl + "/api/user/cancel-appointment",
         { appointmentId },
-        { headers: { token } }
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
 
       if (data.success) {
@@ -86,7 +88,9 @@ const MyAppointments = () => {
           const { data } = await axios.post(
             backendUrl + "/api/user/verifyRazorpay",
             response,
-            { headers: { token } }
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
           );
 
           if (data.success) {
@@ -109,7 +113,9 @@ const MyAppointments = () => {
       const { data } = await axios.post(
         backendUrl + "/api/user/payment-razorpay",
         { appointmentId },
-        { headers: { token } }
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
 
       if (data.success) {
@@ -182,7 +188,11 @@ const MyAppointments = () => {
                   Appointment cancelled
                 </button>
               )}
-              {item.isCompleted && <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500">Appointment completed</button>}
+              {item.isCompleted && (
+                <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500">
+                  Appointment completed
+                </button>
+              )}
             </div>
           </div>
         ))}
