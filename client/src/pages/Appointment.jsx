@@ -27,6 +27,11 @@ const Appointment = () => {
   const getAvailableSlots = async () => {
     setDocSlots([]);
 
+    if (!docInfo || !docInfo.slots_booked) {
+      console.warn("Doctor info or slots_booked missing");
+      return;
+    }
+
     // Getting current date
     let today = new Date();
 
@@ -67,10 +72,7 @@ const Appointment = () => {
         const slotTime = formattedTime;
 
         const isSlotAvailable =
-          docInfo.slots_booked[slotDate] &&
-          docInfo.slots_booked[slotDate].includes(slotTime)
-            ? false
-            : true;
+          !docInfo?.slots_booked?.[slotDate]?.includes(slotTime);
 
         if (isSlotAvailable) {
           // Add slot to array

@@ -150,11 +150,16 @@ const bookAppointment = async (req, res) => {
 
     const docData = await doctorModel.findById(docId).select("-password");
 
+     // Check if doctor exists
+    if (!docData) {
+      return res.status(404).json({ success: false, message: "Doctor not found" });
+    }
+
     if (!docData.available) {
       return res.json({ success: false, message: "Doctor Not Available" });
     }
 
-    let slots_booked = docData.slots_booked;
+    let slots_booked = docData.slots_booked || {};
 
     // Checking for slot availability
     if (slots_booked[slotDate]) {
@@ -164,8 +169,7 @@ const bookAppointment = async (req, res) => {
         slots_booked[slotDate].push(slotTime);
       }
     } else {
-      slots_booked[slotDate] = [];
-      slots_booked[slotDate].push(slotTime);
+      slots_booked[slotDate] = [slotTime];
     }
 
     const userData = await userModel.findById(userId).select("-password");
@@ -218,8 +222,12 @@ const cancelAppointment = async (req, res) => {
 
     const appointmentData = await appointmentModel.findById(appointmentId);
 
+     if (!appointmentData) {
+      return res.json({ success: false, message: "Appointment not found" });
+    }
+
     // Verify appointment user
-    if (appointmentData.userId !== userId) {
+    if (appointmentData.userId.toString() !== userId) {
       return res.json({ success: false, message: "Unauthorized Action" });
     }
 
@@ -232,11 +240,17 @@ const cancelAppointment = async (req, res) => {
 
     const doctorData = await doctorModel.findById(docId);
 
-    let slots_booked = doctorData.slots_booked;
+    if (!doctorData) {
+      return res.json({ success: false, message: "Doctor not found" });
+    }
 
-    slots_booked[slotDate] = slots_booked[slotDate].filter(
-      (e) => e !== slotTime
-    );
+    let slots_booked = doctorData.slots_booked || {};
+
+    if (slots_booked[slotDate]) {
+       slots_booked[slotDate] = slots_booked[slotDate].filter(
+        (e) => e !== slotTime
+      );
+    }
 
     await doctorModel.findByIdAndUpdate(docId, { slots_booked });
 
