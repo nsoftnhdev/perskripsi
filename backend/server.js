@@ -17,11 +17,12 @@ connectCloudinary();
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (
-        !origin ||
-        origin === "https://perskripsi.vercel.app" || "https://perskripsi-admin.vercel.app" ||
-        origin.endsWith(".vercel.app")
-      ) {
+      const allowedOrigins = [
+        "https://perskripsi.vercel.app",
+        "https://perskripsi-admin.vercel.app",
+      ];
+
+      if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS: " + origin));
