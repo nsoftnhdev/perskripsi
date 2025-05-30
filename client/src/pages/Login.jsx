@@ -14,47 +14,27 @@ const Login = () => {
   const [name, setName] = useState("");
 
   const onSubmitHandler = async (event) => {
-    event.preventDefault();
+  event.preventDefault();
 
-    try {
-      if (state === "Sign Up") {
-        const { data } = await axios.post(
-          backendUrl + "/api/user/register",
-          {
-            name,
-            password,
-            email,
-          },
-          { withCredentials: true }
-        );
+  try {
+    const url = state === "Sign Up" ? "/api/user/register" : "/api/user/login";
+    const payload =
+      state === "Sign Up"
+        ? { name, password, email }
+        : { password, email };
 
-        if (data.success) {
-          localStorage.setItem("token", data.token);
-          setToken(data.token);
-        } else {
-          toast.error(data.message);
-        }
-      } else {
-        const { data } = await axios.post(
-          backendUrl + "/api/user/login",
-          {
-            password,
-            email,
-          },
-          { withCredentials: true }
-        );
+    const { data } = await axios.post(backendUrl + url, payload);
 
-        if (data.success) {
-          localStorage.setItem("token", data.token);
-          setToken(data.token);
-        } else {
-          toast.error(data.message);
-        }
-      }
-    } catch (error) {
-      toast.error(error.message);
+    if (data.success) {
+      localStorage.setItem("token", data.token);
+      setToken(data.token);
+    } else {
+      toast.error(data.message);
     }
-  };
+  } catch (error) {
+    toast.error(error.response?.data?.message || error.message);
+  }
+};
 
   useEffect(() => {
     if (token) {

@@ -12,36 +12,42 @@ const MyProfile = () => {
   const [image, setImage] = useState(false);
 
   const updateUserProfileData = async () => {
-    try {
-      const formData = new FormData();
+  try {
+    const formData = new FormData();
 
-      formData.append("name", userData.name);
-      formData.append("phone", userData.phone);
-      formData.append("address", JSON.stringify(userData.address));
-      formData.append("gender", userData.gender);
-      formData.append("dob", userData.dob);
+    formData.append("name", userData.name);
+    formData.append("phone", userData.phone);
+    formData.append("address", JSON.stringify(userData.address));
+    formData.append("gender", userData.gender);
+    formData.append("dob", userData.dob);
 
-      image && formData.append("image", image);
-
-      const { data } = await axios.post(
-        backendUrl + "/api/user/update-profile",
-        formData,
-        { headers: { token } }
-      );
-
-      if (data.success) {
-        toast.success(data.message);
-        await loadUserProfileData();
-        setIsEdit(false);
-        setImage(false);
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error(error.message);
+    if (image instanceof File && image.size > 0) {
+      formData.append("image", image);
     }
-  };
+
+    const { data } = await axios.post(
+      `${backendUrl}/api/user/update-profile`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (data.success) {
+      toast.success(data.message);
+      await loadUserProfileData();
+      setIsEdit(false);
+      setImage(false);
+    } else {
+      toast.error(data.message);
+    }
+  } catch (error) {
+    console.error("Update error:", error);
+    toast.error(error?.response?.data?.message || error.message);
+  }
+};
 
   return (
     userData && (

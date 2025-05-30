@@ -22,7 +22,7 @@ userRouter.get("/get-profile", authUser, getProfile);
 userRouter.post(
   "/update-profile",
   authUser,
-  upload.single("file"),
+  upload.single("image"),
   updateProfile
 );
 userRouter.post("/book-appointment", authUser, bookAppointment);

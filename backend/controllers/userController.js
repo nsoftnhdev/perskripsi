@@ -90,43 +90,55 @@ const getProfile = async (req, res) => {
 // API to update user profile
 const updateProfile = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
     const { name, phone, address, dob, gender } = req.body;
     const imageFile = req.file;
 
-    if (!name || !phone || !dob || !gender) {
-      return res.json({ success: false, message: "Data Missing" });
+    if (!name || !phone || !dob || !gender || !address) {
+      return res.status(400).json({ success: false, message: "Data Missing" });
     }
 
-    // Update user details (without image first)
+    let parsedAddress;
+    try {
+      parsedAddress = JSON.parse(address);
+    } catch (e) {
+      return res.status(400).json({ success: false, message: "Invalid address format" });
+    }
+
     await userModel.findByIdAndUpdate(userId, {
       name,
       phone,
-      address: JSON.parse(address),
+      address: parsedAddress,
       dob,
       gender,
     });
 
-    // If image uploaded, convert buffer to base64 and upload to Cloudinary
     if (imageFile) {
-      const base64Image = Buffer.from(imageFile.buffer).toString("base64");
-      const dataURI = `data:${imageFile.mimetype};base64,${base64Image}`;
+      try {
+        const base64Image = Buffer.from(imageFile.buffer).toString("base64");
+        const dataURI = `data:${imageFile.mimetype};base64,${base64Image}`;
 
-      const imageUpload = await cloudinary.uploader.upload(dataURI, {
-        resource_type: "image",
-        folder: "user_profiles",
-      });
+        const imageUpload = await cloudinary.uploader.upload(dataURI, {
+          resource_type: "image",
+          folder: "user_profiles",
+        });
 
-      const imageURL = imageUpload.secure_url;
-
-      // Update user's image
-      await userModel.findByIdAndUpdate(userId, { image: imageURL });
+        const imageURL = imageUpload.secure_url;
+        await userModel.findByIdAndUpdate(userId, { image: imageURL });
+      } catch (err) {
+        console.error("Cloudinary upload error:", err);
+        return res.status(500).json({ success: false, message: "Image upload failed" });
+      }
     }
 
     res.json({ success: true, message: "Profile Updated" });
   } catch (error) {
     console.log("Error in updateProfile:", error);
-    res.json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: "Server Error", error: error.message });
   }
 };
 
