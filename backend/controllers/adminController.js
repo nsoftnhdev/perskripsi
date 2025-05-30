@@ -23,6 +23,10 @@ const addDoctor = async (req, res) => {
 
     const imageFile = req.file;
 
+    if (!imageFile) {
+      return res.json({ success: false, message: "Image file is required" });
+    }
+
     // Checking for all data to add doctor
     if (
       !name ||
@@ -74,7 +78,7 @@ const addDoctor = async (req, res) => {
       experience,
       about,
       fees,
-      address: JSON.parse(address),
+      address: typeof address === "string" ? JSON.parse(address) : address,
       date: Date.now(),
     };
 
@@ -98,7 +102,7 @@ const loginAdmin = async (req, res) => {
       password === process.env.ADMIN_PASSWORD
     ) {
       const token = jwt.sign(
-        { email }, 
+        { email },
         process.env.JWT_SECRET,
         { expiresIn: "1d" } // optional but good practice
       );
