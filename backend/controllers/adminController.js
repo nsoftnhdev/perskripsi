@@ -24,7 +24,6 @@ const addDoctor = async (req, res) => {
     const imageFile = req.file;
 
     if (!imageFile) {
-      console.log("No file found in request");
       return res.json({ success: false, message: "Image file is required" });
     }
 
