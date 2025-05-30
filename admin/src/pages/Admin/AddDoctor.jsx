@@ -28,7 +28,7 @@ const AddDoctor = () => {
       }
 
       const formData = new FormData();
-      formData.append("file", docImg);
+      formData.append("image", docImg);
       formData.append("name", name);
       formData.append("email", email);
       formData.append("password", password);

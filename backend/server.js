@@ -18,6 +18,7 @@ app.use(
   cors({
     origin: function (origin, callback) {
       const allowedOrigins = [
+        "http://localhost:5174",
         "https://perskripsi.vercel.app",
         "https://perskripsi-admin.vercel.app",
       ];
